@@ -11,6 +11,6 @@ if (( EUID != 0 )); then
 fi
 
 
-../../../cassandra/bin/cqlsh -f ../../../bin/config/cassandra/tables
+../../../cassandra/bin/cqlsh -f ../../../cassandra/conf/dev-env/tables
 ../../../cassandra/bin/cqlsh -f create-admin-dev.txt
 
