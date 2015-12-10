@@ -359,6 +359,11 @@
 								<copy toDir="../Servers/Datafari-config/">
 									<file file="./tomcat/conf/datafari.properties" />
 								</copy>
+								
+								<!-- Copy Log4j.properties file -->
+								<copy toDir="./tomcat/lib/">
+									<file file="./tomcat/conf/log4j.properties" />
+								</copy>
 							</target>
 						</configuration>
 						<goals>
