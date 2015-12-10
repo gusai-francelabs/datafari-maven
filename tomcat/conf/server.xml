@@ -115,7 +115,7 @@
              Note: The pattern used is equivalent to using pattern="common" -->
         <Valve className="org.apache.catalina.valves.AccessLogValve" directory="../logs" pattern="%h %l %u %t &quot;%r&quot; %s %b" prefix="localhost_access_log." suffix=".txt"/>
 
-      <Context docBase="/home/gusai/mvn-git-workspace/datafari/tomcat/wtpwebapps/datafari" path="/datafari" reloadable="true" source="org.eclipse.jst.jee.server:datafari">
+      <Context docBase="/home/gusai/mvn-git-workspace/datafari/tomcat/wtpwebapps/datafari" path="/Datafari" reloadable="true" source="org.eclipse.jst.jee.server:datafari">
 <!--
        <Valve className="fr.doume.jna.authenticator.SSPAuthenticator" /> 
        <Realm className ="fr.doume.jna.realm.WindowsRealm" /> 
