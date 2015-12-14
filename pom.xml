@@ -324,7 +324,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!-- FTP download plugin -->
+			<!-- HTTP download plugin -->
 			<plugin>
 				<groupId>com.googlecode.maven-download-plugin</groupId>
 				<artifactId>download-maven-plugin</artifactId>
@@ -343,6 +343,21 @@
 								as the SHA1 -->
 							<url>http://archive.apache.org/dist/lucene/solr/5.2.1/solr-5.2.1.tgz</url>
 							<sha1>0351906cdeef48cdc85b3fe75dc5c038a90bae5f</sha1>
+							<unpack>true</unpack>
+							<outputDirectory>temp</outputDirectory>
+						</configuration>
+					</execution>
+					<execution>
+						<id>install-cassandra</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>wget</goal>
+						</goals>
+						<configuration>
+							<!-- Version of Cassandra should be retrieved from a property file 
+								as well as the SHA1 -->
+							<url>http://archive.apache.org/dist/cassandra/2.1.8/apache-cassandra-2.1.8-bin.tar.gz</url>
+							<sha1>8fc0b4763487656793e9cb6016b939e0260e057e</sha1>
 							<unpack>true</unpack>
 							<outputDirectory>temp</outputDirectory>
 						</configuration>
@@ -393,7 +408,7 @@
 								<!-- Copy only useful Solr server directories stripping the parent 
 									Solr directory (to avoid Solr version inclusion) -->
 								<copy toDir="solr" overwrite="true" force="true">
-									<fileset dir="temp" includes="solr*/bin/**,solr*/server/**" />
+									<fileset dir="temp" includes="*solr*/bin/**,*solr*/server/**" />
 									<cutdirsmapper dirs="1" />
 								</copy>
 
@@ -415,6 +430,42 @@
 								<chmod dir="solr/server/scripts" perm="775" includes="**/*.sh" />
 
 								<!-- ##### End install Solr section ##### -->
+
+								<!-- ##### Install Cassandra section ##### -->
+
+								<!-- Copy only useful Cassandra directories stripping the parent 
+									Cassandra directory (to avoid Cassandra version inclusion) -->
+								<copy toDir="cassandra" overwrite="true" force="true">
+									<fileset dir="temp">
+										<include name="*cassandra*/bin/**" />
+										<include name="*cassandra*/conf/**" />
+										<include name="*cassandra*/interface/**" />
+										<include name="*cassandra*/lib/**" />
+										<include name="*cassandra*/pylib/**" />
+										<include name="*cassandra*/tools/**" />
+									</fileset>
+									<cutdirsmapper dirs="1" />
+								</copy>
+
+								<!-- Overwrite with Datafari specific scripts -->
+								<copy toDir="cassandra/bin" overwrite="true" force="true">
+									<fileset dir="datafari-cassandra/bin" />
+								</copy>
+
+								<!-- Copy conf directory -->
+								<copy toDir="cassandra/conf" overwrite="true" force="true">
+									<fileset dir="datafari-cassandra/conf" />
+								</copy>
+
+								<!-- Affect enough privileges for Cassandra executables (Ant copy doesn't 
+									preserve execution rights!) -->
+								<!-- All files under cassandra/bin at any level must have 775 permissions -->
+								<chmod dir="cassandra/bin" perm="775" includes="**" />
+								<!-- All files under cassandra/tools/bin at any level must have 775 
+									permissions -->
+								<chmod dir="cassandra/tools/bin" perm="775" includes="**" />
+
+								<!-- ##### End install Cassandra section ##### -->
 
 								<!-- Delete the directory used for storing downloaded resources -->
 								<delete dir="temp" />
