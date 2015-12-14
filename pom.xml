@@ -339,7 +339,8 @@
 							<goal>wget</goal>
 						</goals>
 						<configuration>
-							<!-- Version of Solr should be retrieved from a property file as well as the SHA1 -->
+							<!-- Version of Solr should be retrieved from a property file as well 
+								as the SHA1 -->
 							<url>http://archive.apache.org/dist/lucene/solr/5.2.1/solr-5.2.1.tgz</url>
 							<sha1>0351906cdeef48cdc85b3fe75dc5c038a90bae5f</sha1>
 							<unpack>true</unpack>
@@ -373,34 +374,36 @@
 								<!-- </copy> -->
 
 								<!-- Copy Manifold CF to Tomcat auto-deploy directory -->
-								<copy toDir="tomcat/webapps">
+								<copy toDir="tomcat/webapps" overwrite="true" force="true">
 									<fileset dir="mcf/war" />
 									<globmapper from="*.war" to="datafari-*.war" />
 								</copy>
 
 								<!-- Copy Datafari properties file -->
-								<copy file="tomcat/conf/datafari.properties" toDir="../Servers/Datafari-config" />
+								<copy file="tomcat/conf/datafari.properties" toDir="../Servers/Datafari-config"
+									overwrite="true" force="true" />
 
 								<!-- Copy Log4j.properties file -->
-								<copy file="tomcat/conf/log4j.properties" toDir="tomcat/lib" />
+								<copy file="tomcat/conf/log4j.properties" toDir="tomcat/lib"
+									overwrite="true" force="true" />
 
 
 								<!-- ##### Install Solr section ##### -->
 
 								<!-- Copy only useful Solr server directories stripping the parent 
 									Solr directory (to avoid Solr version inclusion) -->
-								<copy toDir="solr">
+								<copy toDir="solr" overwrite="true" force="true">
 									<fileset dir="temp" includes="solr*/bin/**,solr*/server/**" />
 									<cutdirsmapper dirs="1" />
 								</copy>
 
 								<!-- Overwrite with Datafari specific scripts -->
-								<copy toDir="solr/bin" overwrite="true">
-									<fileset dir="datafari-solr/scripts" />
+								<copy toDir="solr/bin" overwrite="true" force="true">
+									<fileset dir="datafari-solr/bin" />
 								</copy>
 
 								<!-- Copy conf and solr_home directories -->
-								<copy toDir="solr">
+								<copy toDir="solr" overwrite="true" force="true">
 									<fileset dir="datafari-solr" includes="conf/**,solr_home/**" />
 								</copy>
 
