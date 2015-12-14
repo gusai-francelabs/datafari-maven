@@ -271,7 +271,7 @@
 							<goal>copy-dependencies</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>./dist/WEB-INF/lib</outputDirectory>
+							<outputDirectory>dist/WEB-INF/lib</outputDirectory>
 							<includeGroupIds> org.apache.commons, commons-httpclient,
 								commons-logging, commons-codec, commons-digester,
 								commons-beanutils, commons-io, log4j,
@@ -314,12 +314,36 @@
 							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>./dist</outputDirectory>
+							<outputDirectory>dist</outputDirectory>
 							<resources>
 								<resource>
-									<directory>./WebContent</directory>
+									<directory>WebContent</directory>
 								</resource>
 							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- FTP download plugin -->
+			<plugin>
+				<groupId>com.googlecode.maven-download-plugin</groupId>
+				<artifactId>download-maven-plugin</artifactId>
+				<version>1.2.1</version>
+				<!-- Don't propagate configuration to child POMs -->
+				<inherited>false</inherited>
+				<executions>
+					<execution>
+						<id>install-solr</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>wget</goal>
+						</goals>
+						<configuration>
+							<!-- Version of Solr should be retrieved from a property file as well as the SHA1 -->
+							<url>http://archive.apache.org/dist/lucene/solr/5.2.1/solr-5.2.1.tgz</url>
+							<sha1>0351906cdeef48cdc85b3fe75dc5c038a90bae5f</sha1>
+							<unpack>true</unpack>
+							<outputDirectory>temp</outputDirectory>
 						</configuration>
 					</execution>
 				</executions>
@@ -331,7 +355,7 @@
 				<inherited>false</inherited>
 				<executions>
 					<execution>
-						<id>copy</id>
+						<id>ant-tasks</id>
 						<phase>validate</phase>
 						<configuration>
 							<target>
@@ -339,31 +363,58 @@
 								<mkdir dir="pid" />
 								<!-- Affect enough privileges for this folder -->
 								<chmod dir="pid" perm="777" />
-								
+
 								<!-- Copy Tomcat Admin interface resources and Banana webapp to Eclipse's 
-									deploy directory NOT NEEDED-->
-<!-- 								<copy -->
-<!-- 									toDir="../.metadata/.plugins/org.eclipse.wst.server.core/tmp0/webapps/"> -->
-<!-- 									<fileset dir="./tomcat/webapps" includes="ROOT/,manager/" /> -->
-<!-- 									<file file="./tomcat/webapps/banana.war" /> -->
-<!-- 								</copy> -->
+									deploy directory NOT NEEDED -->
+								<!-- <copy -->
+								<!-- toDir="../.metadata/.plugins/org.eclipse.wst.server.core/tmp0/webapps/"> -->
+								<!-- <fileset dir="./tomcat/webapps" includes="ROOT/,manager/" /> -->
+								<!-- <file file="./tomcat/webapps/banana.war" /> -->
+								<!-- </copy> -->
 
 								<!-- Copy Manifold CF to Tomcat auto-deploy directory -->
-								<copy
-									toDir="./tomcat/webapps">
-									<fileset dir="./mcf/war" />
-									<globmapper from="*.war" to="datafari-*.war"/>
+								<copy toDir="tomcat/webapps">
+									<fileset dir="mcf/war" />
+									<globmapper from="*.war" to="datafari-*.war" />
 								</copy>
-								
+
 								<!-- Copy Datafari properties file -->
-								<copy toDir="../Servers/Datafari-config/">
-									<file file="./tomcat/conf/datafari.properties" />
-								</copy>
-								
+								<copy file="tomcat/conf/datafari.properties" toDir="../Servers/Datafari-config" />
+
 								<!-- Copy Log4j.properties file -->
-								<copy toDir="./tomcat/lib/">
-									<file file="./tomcat/conf/log4j.properties" />
+								<copy file="tomcat/conf/log4j.properties" toDir="tomcat/lib" />
+
+
+								<!-- ##### Install Solr section ##### -->
+
+								<!-- Copy only useful Solr server directories stripping the parent 
+									Solr directory (to avoid Solr version inclusion) -->
+								<copy toDir="solr">
+									<fileset dir="temp" includes="solr*/bin/**,solr*/server/**" />
+									<cutdirsmapper dirs="1" />
 								</copy>
+
+								<!-- Overwrite with Datafari specific scripts -->
+								<copy toDir="solr/bin" overwrite="true">
+									<fileset dir="datafari-solr/scripts" />
+								</copy>
+
+								<!-- Copy conf and solr_home directories -->
+								<copy toDir="solr">
+									<fileset dir="datafari-solr" includes="conf/**,solr_home/**" />
+								</copy>
+
+								<!-- Affect enough privileges for Solr executables (Ant copy doesn't 
+									preserve execution rights!) -->
+								<!-- All files under solr/bin at any level must have 775 permissions -->
+								<chmod dir="solr/bin" perm="775" includes="**" />
+								<!-- Only .sh files at any level under solr/server/scripts -->
+								<chmod dir="solr/server/scripts" perm="775" includes="**/*.sh" />
+
+								<!-- ##### End install Solr section ##### -->
+
+								<!-- Delete the directory used for storing downloaded resources -->
+								<delete dir="temp" />
 							</target>
 						</configuration>
 						<goals>
@@ -372,6 +423,7 @@
 					</execution>
 				</executions>
 			</plugin>
+
 		</plugins>
 	</build>
 	<description>
